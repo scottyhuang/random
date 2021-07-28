@@ -129,7 +129,7 @@ public class DevRandom {
 
         CommandLineParser parser = new DefaultParser();
         String path = null;
-        int size = 0;
+        int size = -1;
 
         try {
             CommandLine cmd = parser.parse( options, args);
