@@ -45,7 +45,7 @@ public class DevRandom {
     }
 
     private static void writeNextRandomBytes(
-        CryptoRandom random, OutputStream out, byte[] b, int off, int len) 
+        CryptoRandom random, OutputStream out, byte[] b) 
             throws IOException{
         random.nextBytes(b);
         out.write(b);
@@ -91,22 +91,24 @@ public class DevRandom {
         Path file = Paths.get(path);
         OutputStream out = null;
         
-        byte[] b = new byte[DevRandom.BUFFER_SIZE];
-
         try {
             out = Files.newOutputStream(file);
-            
+           
+	    byte[] b = new byte[DevRandom.BUFFER_SIZE];
+
             if (size < 0) {
                 while(true) {
-                    writeNextRandomBytes(random, out, b, 0, DevRandom.BUFFER_SIZE);
+                    writeNextRandomBytes(random, out, b);
                 }
             } 
 
             for (int i=0; i < size; i += DevRandom.BUFFER_SIZE) { 
-                int length = size - i < DevRandom.BUFFER_SIZE ? size -i : DevRandom.BUFFER_SIZE;
-                writeNextRandomBytes(random, out, b, 0, length);
+		if (size - i < DevRandom.BUFFER_SIZE){
+		    writeNextRandomBytes(random, out, new byte[size - i]);
+		} else {
+                    writeNextRandomBytes(random, out, b);
+		}
             }
-           
         } finally {
             if (out != null) {
                 out.close();

@@ -29,7 +29,7 @@ public class DevRandomTest
      *
      */
     @ParameterizedTest
-    @ValueSource(ints = { 0, 4, 128, 512 })
+    @ValueSource(ints = { 0, 1, 2, 3, 4, 7, 128, 133, 512, 514 })
     public void testWriteRandomBytesWithSizeArgument(int argument)
     {
         try{
