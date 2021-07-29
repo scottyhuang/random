@@ -1,5 +1,5 @@
 ## random
-Implement a clone of $ cat /dev/random
+Implement a clone of $ cat /dev/random in Java
 
 Uses JVM heap memory usage and system clock as entropy sources to generate seed for Java SecureRandom's cryptographically strong RNG.
  
