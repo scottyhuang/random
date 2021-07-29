@@ -56,7 +56,6 @@ public class DevRandom {
                 SecureRandom secureRand = (SecureRandom)random;
                 secureRand.setSeed(seed);
             }
-
         } catch (GeneralSecurityException e) {
             System.err.println(e.getMessage());
         } catch (IOException e) {
@@ -113,7 +112,7 @@ public class DevRandom {
         try {
             out = Files.newOutputStream(file);
            
-	        byte[] b = new byte[DevRandom.BUFFER_SIZE];
+	    byte[] b = new byte[DevRandom.BUFFER_SIZE];
 
             //write continuously to output file if size is negative
             //or not provided
@@ -124,11 +123,11 @@ public class DevRandom {
             } 
 
             for (int i=0; i < size; i += DevRandom.BUFFER_SIZE) { 
-		        if (size - i < DevRandom.BUFFER_SIZE){
-		            writeNextRandomBytes(random, out, new byte[size - i]);
-		        } else {
+	        if (size - i < DevRandom.BUFFER_SIZE){
+		    writeNextRandomBytes(random, out, new byte[size - i]);
+		} else {
                     writeNextRandomBytes(random, out, b);
-		        }
+		}
             }
         } finally {
             if (out != null) {
@@ -149,7 +148,7 @@ public class DevRandom {
         options.addOption("f", "filepath", true, 
                     "output file path, the directory must exist")
                .addOption("s", "size", true, "output file size in bytes")
-	           .addOption("h", "help", false, "display help text");
+	       .addOption("h", "help", false, "display help text");
                   
         CommandLineParser parser = new DefaultParser();
         String path = null;
@@ -170,11 +169,11 @@ public class DevRandom {
                     size = 0;
                 }
             }
-	        if (cmd.hasOption("h")) {
+	    if (cmd.hasOption("h")) {
                 HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp("DevRandom", options);
 		    return;
-	        }
+	    }
         } catch (ParseException e) {
             System.err.println("Error encountered Parsing Arguments. " + 
                 e.getMessage());
