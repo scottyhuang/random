@@ -7,6 +7,7 @@ Backup OpenSSL JNI implementation uses native chipset hardware random number gen
 
 Human generated and other entropy sources were considered but not used.
 
+### Background
 - [Intel® Digital Random Number Generator (DRNG) Software Implementation Guide](https://software.intel.com/content/www/us/en/develop/articles/intel-digital-random-number-generator-drng-software-implementation-guide.html)  
 - [Apache Commons Crypto](https://commons.apache.org/proper/commons-crypto/userguide.html)  
 
