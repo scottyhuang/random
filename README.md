@@ -1,7 +1,7 @@
 ## random
 Purpose:  build a clone of  
 $ cat /dev/random  
-Using the Apache Commons Crypto CryptoRandom interface with default implementation of chipset hardware random number generator (wraps to Openssl implementation) 
+Using the Apache Commons Crypto CryptoRandom interface with default implementation of chipset hardware random number generator
 
 - [Intel® Digital Random Number Generator (DRNG) Software Implementation Guide](https://software.intel.com/content/www/us/en/develop/articles/intel-digital-random-number-generator-drng-software-implementation-guide.html)  
 - [Apache Commons Crypto](https://commons.apache.org/proper/commons-crypto/userguide.html)  
