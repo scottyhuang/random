@@ -1,7 +1,11 @@
 ## random
-Purpose:  build a clone of  
-$ cat /dev/random  
-Using the Apache Commons Crypto CryptoRandom interface with default implementation of chipset hardware random number generator
+Implement a clone of $ cat /dev/random
+
+Uses JVM heap memory usage and System clock as entropy sources to generate seed for Java SecureRandom's cryptographically strong RNG.
+ 
+Backup OpenSSL JNI implementation uses native chipset hardware random number generator if available.   
+
+Human generated and other entropy sources were considered but not used.
 
 - [Intel® Digital Random Number Generator (DRNG) Software Implementation Guide](https://software.intel.com/content/www/us/en/develop/articles/intel-digital-random-number-generator-drng-software-implementation-guide.html)  
 - [Apache Commons Crypto](https://commons.apache.org/proper/commons-crypto/userguide.html)  

@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -17,36 +19,53 @@ import org.apache.commons.crypto.random.CryptoRandom;
 import org.apache.commons.crypto.random.CryptoRandomFactory;
 
 /**
- * DevRandom simulates linux /dev/random
- * Depends on Apache Commons Crypto package 
- * https://commons.apache.org/proper/commons-crypto/
- * Default implementation is the procesor's hardware Digital Random Number Generator 
- * (DRNG). 
- * Backup implementation is Java SecureRandom cryptographically 
- * strong RNG.
+ * Class DevRandom simulates linux /dev/random
+ * Uses JVM heap memory usage and System clock as entropy sources
+ * to generate seed for Java SecureRandom's cryptographically strong RNG.
  * 
+ * Backup OpenSSL JNI implementation uses native chipset hardware
+ * random number generator if available. 
  */
 public class DevRandom {
-    private static final String DEFAULT_FILE_PATH = "devrandom";
-    private static final int BUFFER_SIZE = 4;
-  
+    
     private static CryptoRandom random = null;
 
     static {
         initializeRandom();
     }
 
+    private static final String DEFAULT_FILE_PATH = "devrandom";
+    private static final int BUFFER_SIZE = 4;
+      
+    /**
+     * Get Java SecureRandom implementation and
+     * set the seed generated with system level entropy.
+     */
     public static void initializeRandom() {
+        final Properties props = new Properties();
+        props.put(CryptoRandomFactory.CLASSES_KEY,
+            CryptoRandomFactory.RandomProvider.JAVA.getClassName()
+            .concat(",")
+            .concat(CryptoRandomFactory.RandomProvider.OPENSSL.getClassName()));
+
         try {
-            DevRandom.random = CryptoRandomFactory.getCryptoRandom();
+            random = CryptoRandomFactory.getCryptoRandom(props);
+            
+            byte[] seed = CustomSeed.getSeed();
+            if (random instanceof SecureRandom){
+                SecureRandom secureRand = (SecureRandom)random;
+                secureRand.setSeed(seed);
+            }
+
         } catch (GeneralSecurityException e) {
             System.err.println(e.getMessage());
-        }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }        
     }
 
-    private static void writeNextRandomBytes(
-        CryptoRandom random, OutputStream out, byte[] b) 
-            throws IOException{
+    private static void writeNextRandomBytes(CryptoRandom random, 
+        OutputStream out, byte[] b) throws IOException{
         random.nextBytes(b);
         out.write(b);
     }
@@ -58,7 +77,7 @@ public class DevRandom {
     */
     public static void writeRandomBytes() 
         throws IOException, GeneralSecurityException {
-            writeRandomBytes(DevRandom.DEFAULT_FILE_PATH, -1);
+            writeRandomBytes(DEFAULT_FILE_PATH, -1);
     }
 
     /**
@@ -94,8 +113,10 @@ public class DevRandom {
         try {
             out = Files.newOutputStream(file);
            
-	    byte[] b = new byte[DevRandom.BUFFER_SIZE];
+	        byte[] b = new byte[DevRandom.BUFFER_SIZE];
 
+            //write continuously to output file if size is negative
+            //or not provided
             if (size < 0) {
                 while(true) {
                     writeNextRandomBytes(random, out, b);
@@ -103,11 +124,11 @@ public class DevRandom {
             } 
 
             for (int i=0; i < size; i += DevRandom.BUFFER_SIZE) { 
-		if (size - i < DevRandom.BUFFER_SIZE){
-		    writeNextRandomBytes(random, out, new byte[size - i]);
-		} else {
+		        if (size - i < DevRandom.BUFFER_SIZE){
+		            writeNextRandomBytes(random, out, new byte[size - i]);
+		        } else {
                     writeNextRandomBytes(random, out, b);
-		}
+		        }
             }
         } finally {
             if (out != null) {
@@ -125,9 +146,10 @@ public class DevRandom {
     public static void main(final String []args) 
         throws IOException, GeneralSecurityException{
         Options options = new Options();
-        options.addOption("f", "filepath", true, "output file path, the directory must exist")
+        options.addOption("f", "filepath", true, 
+                    "output file path, the directory must exist")
                .addOption("s", "size", true, "output file size in bytes")
-	       .addOption("h", "help", false, "display help text");
+	           .addOption("h", "help", false, "display help text");
                   
         CommandLineParser parser = new DefaultParser();
         String path = null;
@@ -148,15 +170,19 @@ public class DevRandom {
                     size = 0;
                 }
             }
-	    if (cmd.hasOption("h")) {
+	        if (cmd.hasOption("h")) {
                 HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp("DevRandom", options);
-		return;
-	    }
+		    return;
+	        }
         } catch (ParseException e) {
-            System.err.println("Error encountered Parsing Arguments. " + e.getMessage());
+            System.err.println("Error encountered Parsing Arguments. " + 
+                e.getMessage());
             return;
         }
+        
+        // Show the actual class (may be different from the one requested)
+        System.out.println(random.getClass().getCanonicalName());
         
         writeRandomBytes(path, size);
     }
