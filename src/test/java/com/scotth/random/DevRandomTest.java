@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 public class DevRandomTest 
 {
-    private static final String DEFAULT_FILE_PATH = "./dev/random-test";
+    private static final String DEFAULT_FILE_PATH = "./random-test";
 
     private static long getFileLength(String filePath) throws IOException {
         File file = new File(filePath);

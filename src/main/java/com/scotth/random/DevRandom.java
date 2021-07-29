@@ -115,24 +115,24 @@ public class DevRandom {
     }
 
     /**
-    * @param -f,--filepath   output file path
-    * @param -s,--size       output file size in bytes
+    * @param -f, --filepath   output file path
+    * @param -s, --size       output file size in bytes
+    * @param -h, --help      
+    *
     */
     public static void main(final String []args) 
         throws IOException, GeneralSecurityException{
         Options options = new Options();
-        options.addOption("f", "filepath", false, "output file path")
-               .addOption("s", "size", false, "output file size in bytes");
+        options.addOption("f", "filepath", true, "output file path, the directory must exist")
+               .addOption("s", "size", true, "output file size in bytes")
+	       .addOption("h", "help", false, "display help text");
                   
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("DevRandom", options);
-
         CommandLineParser parser = new DefaultParser();
         String path = null;
         int size = -1;
 
         try {
-            CommandLine cmd = parser.parse( options, args);
+            CommandLine cmd = parser.parse(options, args);
             if (cmd.hasOption("f")) {
                 path = cmd.getOptionValue("f");
             }
@@ -146,6 +146,11 @@ public class DevRandom {
                     size = 0;
                 }
             }
+	    if (cmd.hasOption("h")) {
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp("DevRandom", options);
+		return;
+	    }
         } catch (ParseException e) {
             System.err.println("Error encountered Parsing Arguments. " + e.getMessage());
             return;
